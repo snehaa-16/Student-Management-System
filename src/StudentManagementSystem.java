@@ -1,13 +1,14 @@
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class StudentManagementSystem {
 
-    private ArrayList<Student> students;
     private Scanner scanner;
 
     public StudentManagementSystem() {
-        students = new ArrayList<>();
         scanner = new Scanner(System.in);
     }
 
@@ -16,13 +17,6 @@ public class StudentManagementSystem {
         System.out.print("Enter Student ID: ");
         int id = scanner.nextInt();
         scanner.nextLine();
-
-        for (Student student : students) {
-            if (student.getId() == id) {
-                System.out.println("Student ID already exists!");
-                return;
-            }
-        }
 
         System.out.print("Enter Student Name: ");
         String name = scanner.nextLine();
@@ -38,23 +32,67 @@ public class StudentManagementSystem {
         double marks = scanner.nextDouble();
         scanner.nextLine();
 
-        Student student = new Student(id, name, age, course, marks);
-        students.add(student);
+        String sql = "INSERT INTO students (id, name, age, course, marks) VALUES (?, ?, ?, ?, ?)";
 
-        System.out.println("Student added successfully!");
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+            statement.setString(2, name);
+            statement.setInt(3, age);
+            statement.setString(4, course);
+            statement.setDouble(5, marks);
+
+            statement.executeUpdate();
+
+            System.out.println("Student added successfully!");
+
+        } catch (SQLException e) {
+
+            System.out.println("Unable to add student.");
+
+            if (e.getErrorCode() == 1062) {
+                System.out.println("Student ID already exists!");
+            } else {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void viewStudents() {
 
-        if (students.isEmpty()) {
-            System.out.println("No students found.");
-            return;
-        }
+        String sql = "SELECT * FROM students";
 
-        System.out.println("\n===== ALL STUDENTS =====");
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet result = statement.executeQuery()) {
 
-        for (Student student : students) {
-            student.displayStudent();
+            boolean found = false;
+
+            System.out.println("\n===== ALL STUDENTS =====");
+
+            while (result.next()) {
+
+                found = true;
+
+                Student student = new Student(
+                        result.getInt("id"),
+                        result.getString("name"),
+                        result.getInt("age"),
+                        result.getString("course"),
+                        result.getDouble("marks")
+                );
+
+                student.displayStudent();
+            }
+
+            if (!found) {
+                System.out.println("No students found.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Unable to retrieve students.");
+            e.printStackTrace();
         }
     }
 
@@ -64,16 +102,36 @@ public class StudentManagementSystem {
         int id = scanner.nextInt();
         scanner.nextLine();
 
-        for (Student student : students) {
+        String sql = "SELECT * FROM students WHERE id = ?";
 
-            if (student.getId() == id) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+
+            ResultSet result = statement.executeQuery();
+
+            if (result.next()) {
+
+                Student student = new Student(
+                        result.getInt("id"),
+                        result.getString("name"),
+                        result.getInt("age"),
+                        result.getString("course"),
+                        result.getDouble("marks")
+                );
+
                 System.out.println("\nStudent found!");
                 student.displayStudent();
-                return;
-            }
-        }
 
-        System.out.println("Student not found.");
+            } else {
+                System.out.println("Student not found.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Unable to search student.");
+            e.printStackTrace();
+        }
     }
 
     public void updateStudent() {
@@ -82,35 +140,43 @@ public class StudentManagementSystem {
         int id = scanner.nextInt();
         scanner.nextLine();
 
-        for (Student student : students) {
+        System.out.print("Enter new name: ");
+        String name = scanner.nextLine();
 
-            if (student.getId() == id) {
+        System.out.print("Enter new age: ");
+        int age = scanner.nextInt();
+        scanner.nextLine();
 
-                System.out.print("Enter new name: ");
-                String name = scanner.nextLine();
+        System.out.print("Enter new course: ");
+        String course = scanner.nextLine();
 
-                System.out.print("Enter new age: ");
-                int age = scanner.nextInt();
-                scanner.nextLine();
+        System.out.print("Enter new marks: ");
+        double marks = scanner.nextDouble();
+        scanner.nextLine();
 
-                System.out.print("Enter new course: ");
-                String course = scanner.nextLine();
+        String sql = "UPDATE students SET name = ?, age = ?, course = ?, marks = ? WHERE id = ?";
 
-                System.out.print("Enter new marks: ");
-                double marks = scanner.nextDouble();
-                scanner.nextLine();
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-                student.setName(name);
-                student.setAge(age);
-                student.setCourse(course);
-                student.setMarks(marks);
+            statement.setString(1, name);
+            statement.setInt(2, age);
+            statement.setString(3, course);
+            statement.setDouble(4, marks);
+            statement.setInt(5, id);
 
+            int rows = statement.executeUpdate();
+
+            if (rows > 0) {
                 System.out.println("Student updated successfully!");
-                return;
+            } else {
+                System.out.println("Student not found.");
             }
-        }
 
-        System.out.println("Student not found.");
+        } catch (SQLException e) {
+            System.out.println("Unable to update student.");
+            e.printStackTrace();
+        }
     }
 
     public void deleteStudent() {
@@ -119,18 +185,25 @@ public class StudentManagementSystem {
         int id = scanner.nextInt();
         scanner.nextLine();
 
-        for (int i = 0; i < students.size(); i++) {
+        String sql = "DELETE FROM students WHERE id = ?";
 
-            if (students.get(i).getId() == id) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-                students.remove(i);
+            statement.setInt(1, id);
 
+            int rows = statement.executeUpdate();
+
+            if (rows > 0) {
                 System.out.println("Student deleted successfully!");
-                return;
+            } else {
+                System.out.println("Student not found.");
             }
-        }
 
-        System.out.println("Student not found.");
+        } catch (SQLException e) {
+            System.out.println("Unable to delete student.");
+            e.printStackTrace();
+        }
     }
 
     public void start() {
@@ -176,7 +249,7 @@ public class StudentManagementSystem {
 
                 case 6:
                     System.out.println(
-                        "Thank you for using Student Management System!"
+                            "Thank you for using Student Management System!"
                     );
                     scanner.close();
                     return;
