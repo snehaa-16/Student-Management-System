@@ -1,6 +1,6 @@
 # Student Management System
 
-A console-based Student Management System developed using Java and Object-Oriented Programming principles.
+A console-based Student Management System developed using Java, JDBC, and MySQL.
 
 ## Features
 
@@ -10,15 +10,16 @@ A console-based Student Management System developed using Java and Object-Orient
 - Update student information
 - Delete students
 - Prevent duplicate student IDs
+- Store student records in a MySQL database
 - Menu-driven console interface
 
 ## Technologies Used
 
 - Java
-- Object-Oriented Programming
-- ArrayList
-- Java Collections
-- Scanner
+- Object-Oriented Programming (OOP)
+- JDBC
+- MySQL
+- Maven
 
 ## OOP Concepts Used
 
@@ -29,15 +30,36 @@ A console-based Student Management System developed using Java and Object-Orient
 - Getters and Setters
 - Methods
 
+## Database
+
+The project uses a MySQL database named:
+
+`student_management`
+
+The database contains a `students` table with the following fields:
+
+| Field | Type |
+|---|---|
+| id | INT |
+| name | VARCHAR(100) |
+| age | INT |
+| course | VARCHAR(100) |
+| marks | DOUBLE |
+
+The SQL database structure is available in `database.sql`.
+
 ## Project Structure
 
 ```text
-Student-Management-System/
+Student-Management-System
 │
-├── src/
+├── src
 │   ├── Main.java
 │   ├── Student.java
-│   └── StudentManagementSystem.java
+│   ├── StudentManagementSystem.java
+│   └── DatabaseConnection.java
 │
+├── database.sql
+├── pom.xml
 ├── README.md
 └── .gitignore
