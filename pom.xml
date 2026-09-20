@@ -24,6 +24,10 @@
             <version>9.4.0</version>
         </dependency>
 
-    </dependencies>
+        </dependencies>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+    </build>
 
 </project>
