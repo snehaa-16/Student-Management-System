@@ -11,22 +11,8 @@ public class DatabaseConnection {
 
     private static final String PASSWORD = "YOUR_PASSWORD";
 
-    public static Connection getConnection() {
+    public static Connection getConnection() throws SQLException {
 
-        try {
-            Connection connection =
-                    DriverManager.getConnection(URL, USER, PASSWORD);
-
-            System.out.println("Database connected successfully!");
-
-            return connection;
-
-        } catch (SQLException e) {
-
-            System.out.println("Database connection failed!");
-            e.printStackTrace();
-
-            return null;
-        }
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
