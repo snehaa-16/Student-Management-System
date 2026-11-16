@@ -4,15 +4,42 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/student_management";
+    private static final String ENV_URL = "DB_URL";
+    private static final String ENV_USER = "DB_USER";
+    private static final String ENV_PASSWORD = "DB_PASSWORD";
 
-    private static final String USER = "root";
+    private static String getRequiredEnv(String name) throws SQLException {
 
-    private static final String PASSWORD = "YOUR_PASSWORD";
+        String value = System.getenv(name);
+
+        if (value == null || value.trim().isEmpty()) {
+            throw new SQLException(
+                    "Missing environment variable: " + name
+                    + ". Please set DB_URL, DB_USER and DB_PASSWORD "
+                    + "(see README.md for setup steps)."
+            );
+        }
+
+        return value;
+    }
 
     public static Connection getConnection() throws SQLException {
 
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        String url = getRequiredEnv(ENV_URL);
+        String user = getRequiredEnv(ENV_USER);
+        String password = getRequiredEnv(ENV_PASSWORD);
+
+        try {
+            return DriverManager.getConnection(url, user, password);
+
+        } catch (SQLException e) {
+            throw new SQLException(
+                    "Could not connect to the database. Check that MySQL "
+                    + "is running and that DB_URL, DB_USER and DB_PASSWORD "
+                    + "are correct.",
+                    e.getSQLState(),
+                    e.getErrorCode()
+            );
+        }
     }
 }
