@@ -207,41 +207,46 @@ public void viewStudents() {
 }
 
 
-    public void searchStudent() {
+public void searchStudent() {
 
-        int id = readInt("Enter Student ID: ", MIN_ID, Integer.MAX_VALUE);
+    int id = readInt("Enter Student ID: ", MIN_ID, Integer.MAX_VALUE);
 
-        String sql = "SELECT * FROM students WHERE id = ?";
+    String sql = "SELECT id, name, age, course, marks FROM students WHERE id = ?";
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+    Student student = null;
 
-            statement.setInt(1, id);
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            ResultSet result = statement.executeQuery();
+        statement.setInt(1, id);
+
+        try (ResultSet result = statement.executeQuery()) {
 
             if (result.next()) {
-
-                Student student = new Student(
+                student = new Student(
                         result.getInt("id"),
                         result.getString("name"),
                         result.getInt("age"),
                         result.getString("course"),
                         result.getDouble("marks")
                 );
-
-                System.out.println("\nStudent found!");
-                student.displayStudent();
-
-            } else {
-                System.out.println("Student not found.");
             }
-
-        } catch (SQLException e) {
-            handleSQLException("search student", e);
         }
+
+    } catch (SQLException e) {
+        handleSQLException("search student", e);
+        return;
     }
 
+    if (student == null) {
+        System.out.println("Student not found.");
+    } else {
+        System.out.println("\nStudent found!");
+        student.displayStudent();
+    }
+}
+
+    
     private boolean studentExists(int id) throws SQLException {
 
     String sql = "SELECT id FROM students WHERE id = ?";
