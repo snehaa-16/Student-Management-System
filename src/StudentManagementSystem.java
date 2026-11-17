@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StudentManagementSystem {
 
@@ -151,41 +153,59 @@ public class StudentManagementSystem {
         }
     }
 
-    public void viewStudents() {
+   
+public void viewStudents() {
 
-        String sql = "SELECT * FROM students";
+    String sql = "SELECT id, name, age, course, marks FROM students ORDER BY id";
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
+    List<Student> students = new ArrayList<>();
 
-            boolean found = false;
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(sql);
+         ResultSet result = statement.executeQuery()) {
 
-            System.out.println("\n===== ALL STUDENTS =====");
-
-            while (result.next()) {
-
-                found = true;
-
-                Student student = new Student(
-                        result.getInt("id"),
-                        result.getString("name"),
-                        result.getInt("age"),
-                        result.getString("course"),
-                        result.getDouble("marks")
-                );
-
-                student.displayStudent();
-            }
-
-            if (!found) {
-                System.out.println("No students found.");
-            }
-
-        } catch (SQLException e) {
-            handleSQLException("retrieve students", e);
+        while (result.next()) {
+            students.add(new Student(
+                    result.getInt("id"),
+                    result.getString("name"),
+                    result.getInt("age"),
+                    result.getString("course"),
+                    result.getDouble("marks")
+            ));
         }
+
+    } catch (SQLException e) {
+        handleSQLException("retrieve students", e);
+        return;
     }
+
+    System.out.println("\n===== ALL STUDENTS =====");
+
+    if (students.isEmpty()) {
+        System.out.println("No students found.");
+        return;
+    }
+
+    String line = "-".repeat(65);
+
+    System.out.println(line);
+    System.out.printf("%-6s %-22s %-5s %-22s %6s%n",
+            "ID", "Name", "Age", "Course", "Marks");
+    System.out.println(line);
+
+    for (Student student : students) {
+        System.out.printf("%-6d %-22.22s %-5d %-22.22s %6.2f%n",
+                student.getId(),
+                student.getName(),
+                student.getAge(),
+                student.getCourse(),
+                student.getMarks());
+    }
+
+    System.out.println(line);
+    System.out.println("Total students: " + students.size());
+}
+
 
     public void searchStudent() {
 
