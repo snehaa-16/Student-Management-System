@@ -222,37 +222,64 @@ public class StudentManagementSystem {
         }
     }
 
-    public void updateStudent() {
+    private boolean studentExists(int id) throws SQLException {
 
-        int id = readInt("Enter Student ID to update: ", MIN_ID, Integer.MAX_VALUE);
-        String name = readText("Enter new name: ", "Name");
-        int age = readInt("Enter new age: ", MIN_AGE, MAX_AGE);
-        String course = readText("Enter new course: ", "Course");
-        double marks = readDouble("Enter new marks (0-100): ", MIN_MARKS, MAX_MARKS);
+    String sql = "SELECT id FROM students WHERE id = ?";
 
-        String sql = "UPDATE students SET name = ?, age = ?, course = ?, marks = ? WHERE id = ?";
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        statement.setInt(1, id);
 
-            statement.setString(1, name);
-            statement.setInt(2, age);
-            statement.setString(3, course);
-            statement.setDouble(4, marks);
-            statement.setInt(5, id);
-
-            int rows = statement.executeUpdate();
-
-            if (rows > 0) {
-                System.out.println("Student updated successfully!");
-            } else {
-                System.out.println("Student not found.");
-            }
-
-        } catch (SQLException e) {
-            handleSQLException("update student", e);
+        try (ResultSet result = statement.executeQuery()) {
+            return result.next();
         }
     }
+}
+    public void updateStudent() {
+
+    int id = readInt("Enter Student ID to update: ", MIN_ID, Integer.MAX_VALUE);
+
+    try {
+        if (!studentExists(id)) {
+            System.out.println("Student not found.");
+            return;
+        }
+    } catch (SQLException e) {
+        handleSQLException("check student", e);
+        return;
+    }
+
+    System.out.println("Student found. Enter the new details.");
+
+    String name = readText("Enter new name: ", "Name");
+    int age = readInt("Enter new age: ", MIN_AGE, MAX_AGE);
+    String course = readText("Enter new course: ", "Course");
+    double marks = readDouble("Enter new marks (0-100): ", MIN_MARKS, MAX_MARKS);
+
+    String sql = "UPDATE students SET name = ?, age = ?, course = ?, marks = ? WHERE id = ?";
+
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(sql)) {
+
+        statement.setString(1, name);
+        statement.setInt(2, age);
+        statement.setString(3, course);
+        statement.setDouble(4, marks);
+        statement.setInt(5, id);
+
+        int rows = statement.executeUpdate();
+
+        if (rows > 0) {
+            System.out.println("Student updated successfully!");
+        } else {
+            System.out.println("Update failed: student no longer exists.");
+        }
+
+    } catch (SQLException e) {
+        handleSQLException("update student", e);
+    }
+}
 
     public void deleteStudent() {
 
