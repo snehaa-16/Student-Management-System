@@ -90,6 +90,20 @@ public class StudentManagementSystem {
             }
         }
     }
+    private boolean readYesNo(String prompt) {
+    while (true) {
+        System.out.print(prompt);
+        String line = scanner.nextLine().trim();
+
+        if (line.equalsIgnoreCase("Y")) {
+            return true;
+        } else if (line.equalsIgnoreCase("N")) {
+            return false;
+        } else {
+            System.out.println("Invalid input. Please enter Y or N.");
+        }
+    }
+}
 
     // ---------- Database error helper ----------
 
@@ -308,28 +322,49 @@ public void searchStudent() {
 
     public void deleteStudent() {
 
-        int id = readInt("Enter Student ID to delete: ", MIN_ID, Integer.MAX_VALUE);
+    int id = readInt("Enter Student ID to delete: ", MIN_ID, Integer.MAX_VALUE);
 
-        String sql = "DELETE FROM students WHERE id = ?";
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
-            statement.setInt(1, id);
-
-            int rows = statement.executeUpdate();
-
-            if (rows > 0) {
-                System.out.println("Student deleted successfully!");
-            } else {
-                System.out.println("Student not found.");
-            }
-
-        } catch (SQLException e) {
-            handleSQLException("delete student", e);
+    // Step 1: Check whether the student exists.
+    try {
+        if (!studentExists(id)) {
+            System.out.println("Student not found.");
+            return;
         }
+    } catch (SQLException e) {
+        handleSQLException("check student", e);
+        return;
     }
 
+    // Step 2: Ask for confirmation.
+    boolean confirmed = readYesNo(
+            "Are you sure you want to delete student ID " + id + "? (Y/N): ");
+
+    if (!confirmed) {
+        System.out.println("Deletion cancelled.");
+        return;
+    }
+
+    // Step 3: Delete the student.
+    String sql = "DELETE FROM students WHERE id = ?";
+
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(sql)) {
+
+        statement.setInt(1, id);
+
+        int rows = statement.executeUpdate();
+
+        if (rows > 0) {
+            System.out.println("Student deleted successfully!");
+        } else {
+            System.out.println("Delete failed: the student no longer exists. "
+                    + "It may have already been deleted. No changes were made.");
+        }
+
+    } catch (SQLException e) {
+        handleSQLException("delete student", e);
+    }
+}
     // ---------- Menu ----------
 
     public void start() {
