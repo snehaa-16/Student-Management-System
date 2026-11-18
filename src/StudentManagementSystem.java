@@ -1,96 +1,108 @@
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.List;
+        System.out.println("\n--- Search Student ---");
+        int id = readInt("Enter student ID to search: ", MIN_ID, Integer.MAX_VALUE);
+        String sql = "SELECT id, name, age, course, marks FROM students WHERE id = ?";
 
-public class StudentManagementSystem {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
 
-    private static final int MIN_ID = 1;
-    private static final int MIN_AGE = 5;
-    private static final int MAX_AGE = 100;
-    private static final double MIN_MARKS = 0;
-    private static final double MAX_MARKS = 100;
-    private static final int MAX_TEXT_LENGTH = 100;
-
-    private Scanner scanner;
-
-    public StudentManagementSystem() {
-        scanner = new Scanner(System.in);
-    }
-
-    // ---------- Input helper methods ----------
-
-    private int readInt(String prompt, int min, int max) {
-        while (true) {
-            System.out.print(prompt);
-            String line = scanner.nextLine().trim();
-
-            try {
-                int value = Integer.parseInt(line);
-
-                if (value < min || value > max) {
-                    String range = (max == Integer.MAX_VALUE)
-                            ? "a number " + min + " or greater"
-                            : "a number between " + min + " and " + max;
-                    System.out.println("Invalid input. Please enter " + range + ".");
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    displayStudent(resultSet);
                 } else {
-                    return value;
+                    System.out.println("Student not found.");
                 }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a whole number (digits only).");
             }
+        } catch (SQLException e) {
+            handleSQLException("search student", e);
         }
     }
 
-    private double readDouble(String prompt, double min, double max) {
-        while (true) {
-            System.out.print(prompt);
-            String line = scanner.nextLine().trim();
+    private void updateStudent() {
+        System.out.println("\n--- Update Student ---");
+        int id = readInt("Enter student ID to update: ", MIN_ID, Integer.MAX_VALUE);
 
-            try {
-                double value = Double.parseDouble(line);
-
-                // Written this way so NaN and Infinity are rejected too.
-                if (!(value >= min && value <= max)) {
-                    System.out.println("Invalid input. Please enter a number between "
-                            + min + " and " + max + ".");
-                } else {
-                    return value;
-                }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number (for example 75.5).");
+        try {
+            if (!studentExists(id)) {
+                System.out.println("Student not found.");
+                return;
             }
+        } catch (SQLException e) {
+            handleSQLException("check student before update", e);
+            return;
         }
-    }
 
-    private String readText(String prompt, String fieldName) {
-        while (true) {
-            System.out.print(prompt);
-            String line = scanner.nextLine().trim();
+        String name = readText("Enter new student name: ", "Name");
+        int age = readInt("Enter new student age: ", MIN_AGE, MAX_AGE);
+        String course = readText("Enter new course: ", "Course");
+        double marks = readDouble("Enter new marks (0-100): ", MIN_MARKS, MAX_MARKS);
 
-            if (line.isEmpty()) {
-                System.out.println(fieldName + " cannot be empty.");
-            } else if (line.length() > MAX_TEXT_LENGTH) {
-                System.out.println(fieldName + " must be at most "
-                        + MAX_TEXT_LENGTH + " characters.");
+        String sql = "UPDATE students SET name = ?, age = ?, course = ?, marks = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, name);
+            statement.setInt(2, age);
+            statement.setString(3, course);
+            statement.setDouble(4, marks);
+            statement.setInt(5, id);
+
+            int rows = statement.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Student updated successfully.");
             } else {
-                return line;
+                System.out.println("No student record was updated.");
             }
+        } catch (SQLException e) {
+            handleSQLException("update student", e);
         }
     }
 
-    private boolean readYesNo(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String line = scanner.nextLine().trim();
+    private void deleteStudent() {
+        System.out.println("\n--- Delete Student ---");
+        int id = readInt("Enter student ID to delete: ", MIN_ID, Integer.MAX_VALUE);
 
-            if (line.equalsIgnoreCase("Y")) {
-                return true;
-            } else if (line.equalsIgnoreCase("N")) {
-                return false;
+        try {
+            if (!studentExists(id)) {
+                System.out.println("Student not found.");
+                return;
+            }
+        } catch (SQLException e) {
+            handleSQLException("check student before delete", e);
+            return;
+        }
+
+        if (!readYesNo("Are you sure you want to delete this student? (Y/N): ")) {
+            System.out.println("Delete operation cancelled.");
+            return;
+        }
+
+        String sql = "DELETE FROM students WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+
+            int rows = statement.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Student deleted successfully.");
+            } else {
+                System.out.println("Student record was not found or was already deleted.");
+            }
+        } catch (SQLException e) {
+            handleSQLException("delete student", e);
+        }
+    }
+
+    // ---------- Display helper ----------
+
+    private void displayStudent(ResultSet resultSet) throws SQLException {
+        System.out.println("----------------------------");
+        System.out.println("Student ID : " + resultSet.getInt("id"));
+        System.out.println("Name       : " + resultSet.getString("name"));
+        System.out.println("Age        : " + resultSet.getInt("age"));
+        System.out.println("Course     : " + resultSet.getString("course"));
+        System.out.println("Marks      : " + resultSet.getDouble("marks"));
+        System.out.println("----------------------------");
+    }
+}
