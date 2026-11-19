@@ -355,6 +355,10 @@ public StudentManagementSystem(Scanner scanner) {
     }
 
     public void deleteStudent() {
+        if (currentRole != Role.ADMIN) {
+    System.out.println("Access denied. Administrator permission required.");
+    return;
+}
 
         int id = readInt("Enter Student ID to delete: ", MIN_ID, Integer.MAX_VALUE);
 
