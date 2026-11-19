@@ -17,6 +17,7 @@ public class AuthService {
             return "Username must be 3-30 characters: letters, digits and underscore only.";
         }
         return null;
+    }
         
 public User authenticate(String username, char[] password) throws SQLException {
     if (username == null || password == null) {
@@ -35,8 +36,6 @@ public User authenticate(String username, char[] password) throws SQLException {
 
     return null;
 }
-
-    }
 
     public String validatePassword(char[] password, String username) {
         if (password == null
