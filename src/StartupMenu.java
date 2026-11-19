@@ -48,6 +48,7 @@ public class StartupMenu {
                     System.out.println("Invalid choice!");
             }
         }
+    }
         private void login() {
     System.out.println("\n===== USER LOGIN =====");
 
