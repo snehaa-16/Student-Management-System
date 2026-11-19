@@ -9,16 +9,23 @@ public class UserDao {
     private static final int LOCK_TIMEOUT_SECONDS = 5;
 
     // Checks whether the users table contains ANY account.
-    public boolean hasAnyUser() throws SQLException {
-        try (Connection connection = DatabaseConnection.getConnection()) {
-            String sql = "SELECT 1 FROM users LIMIT 1";
-
-            try (PreparedStatement statement = connection.prepareStatement(sql);
-                 ResultSet result = statement.executeQuery()) {
-                return result.next();
-            }
-        }
+    // Checks whether the users table contains ANY account.
+public boolean hasAnyUser() throws SQLException {
+    try (Connection connection = DatabaseConnection.getConnection()) {
+        return hasAnyUser(connection);
     }
+}
+
+// Checks using the supplied connection.
+private boolean hasAnyUser(Connection connection) throws SQLException {
+    String sql = "SELECT 1 FROM users LIMIT 1";
+
+    try (PreparedStatement statement = connection.prepareStatement(sql);
+         ResultSet result = statement.executeQuery()) {
+        return result.next();
+    }
+}
+}
         
 public User findByUsername(String username) throws SQLException {
     String sql = "SELECT username, password_hash, role FROM users WHERE username = ?";
@@ -62,7 +69,7 @@ public User findByUsername(String username) throws SQLException {
 
             try {
                 // Check again while holding the lock.
-                if (hasAnyUser()) {
+                if (hasAnyUser(connection)) {
                     return RegistrationResult.ALREADY_INITIALIZED;
                 }
 
