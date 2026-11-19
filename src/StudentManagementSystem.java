@@ -17,6 +17,7 @@ public class StudentManagementSystem {
     private static final int MAX_TEXT_LENGTH = 100;
 
     private Scanner scanner;
+    private Role currentRole;
 
 public StudentManagementSystem() {
     this(new Scanner(System.in));
@@ -157,6 +158,10 @@ public StudentManagementSystem(Scanner scanner) {
     // ---------- CRUD operations ----------
 
     public void addStudent() {
+        if (currentRole != Role.ADMIN) {
+    System.out.println("Access denied. Administrator permission required.");
+    return;
+}
 
         int id = readInt("Enter Student ID: ", MIN_ID, Integer.MAX_VALUE);
 
@@ -396,6 +401,7 @@ public void start(Role role) {
         System.out.println("Access denied.");
         return;
     }
+    currentRole = role;
 
     try {
         while (true) {
