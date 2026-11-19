@@ -18,10 +18,13 @@ public class StudentManagementSystem {
 
     private Scanner scanner;
 
-    public StudentManagementSystem() {
-        scanner = new Scanner(System.in);
-    }
+public StudentManagementSystem() {
+    this(new Scanner(System.in));
+}
 
+public StudentManagementSystem(Scanner scanner) {
+    this.scanner = scanner;
+}
     // ---------- Input helper methods ----------
 
     private int readInt(String prompt, int min, int max) {
