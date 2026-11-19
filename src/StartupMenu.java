@@ -48,6 +48,38 @@ public class StartupMenu {
                     System.out.println("Invalid choice!");
             }
         }
+        private void login() {
+    System.out.println("\n===== USER LOGIN =====");
+
+    String username = input.readLine("Username: ");
+
+    if (username == null || username.trim().isEmpty()) {
+        return;
+    }
+
+    char[] password = input.readPassword("Password: ");
+
+    if (password == null) {
+        return;
+    }
+
+    try {
+        User user = authService.authenticate(username.trim(), password);
+
+        if (user == null) {
+            System.out.println("Invalid username or password.");
+            return;
+        }
+
+        System.out.println("Login successful. Welcome, " + user.getUsername() + "!");
+        studentSystem.start(user.getRole());
+
+    } catch (SQLException e) {
+        System.out.println("Login failed because the database is unavailable.");
+    } finally {
+        wipe(password);
+    }
+}
     }
 
     private boolean ensureAdminExists() {
