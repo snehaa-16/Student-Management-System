@@ -305,6 +305,10 @@ public StudentManagementSystem(Scanner scanner) {
     }
 
     public void updateStudent() {
+        if (currentRole != Role.ADMIN) {
+    System.out.println("Access denied. Administrator permission required.");
+    return;
+}
 
         int id = readInt("Enter Student ID to update: ", MIN_ID, Integer.MAX_VALUE);
 
