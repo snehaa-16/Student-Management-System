@@ -40,7 +40,7 @@ public class UserDao {
 
             try {
                 // Check again while holding the lock.
-                if (hasAnyUser(connection)) {
+                if (hasAnyUser()) {
                     return RegistrationResult.ALREADY_INITIALIZED;
                 }
 
