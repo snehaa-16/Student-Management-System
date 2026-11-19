@@ -18,6 +18,29 @@ public class UserDao {
                 return result.next();
             }
         }
+        
+public User findByUsername(String username) throws SQLException {
+    String sql = "SELECT username, password_hash, role FROM users WHERE username = ?";
+
+    try (Connection connection = DatabaseConnection.getConnection();
+         PreparedStatement statement = connection.prepareStatement(sql)) {
+
+        statement.setString(1, username);
+
+        try (ResultSet result = statement.executeQuery()) {
+            if (result.next()) {
+                return new User(
+                    result.getString("username"),
+                    result.getString("password_hash"),
+                    Role.valueOf(result.getString("role"))
+                );
+            }
+        }
+    }
+
+    return null;
+}
+
     }
 
     // Normal registration always creates a USER.
