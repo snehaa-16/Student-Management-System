@@ -82,7 +82,7 @@ public class StartupMenu {
     }
 }
 
-    private boolean ensureAdminExists() {
+   
 
     private boolean ensureAdminExists() {
         boolean setupNeeded;
