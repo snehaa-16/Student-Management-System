@@ -18,6 +18,7 @@ public class UserDao {
                 return result.next();
             }
         }
+    }
         
 public User findByUsername(String username) throws SQLException {
     String sql = "SELECT username, password_hash, role FROM users WHERE username = ?";
@@ -40,8 +41,6 @@ public User findByUsername(String username) throws SQLException {
 
     return null;
 }
-
-    }
 
     // Normal registration always creates a USER.
     public void registerUser(String username, String passwordHash)
