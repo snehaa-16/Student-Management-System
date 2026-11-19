@@ -24,7 +24,7 @@ public class StartupMenu {
             System.out.println("          STARTUP MENU");
             System.out.println("=================================");
             System.out.println("1. Register New User");
-            System.out.println("2. Open Student Management (TEMPORARY - no login yet)");
+            System.out.println("2. Login");
             System.out.println("3. Exit");
             System.out.println("=================================");
 
@@ -39,8 +39,8 @@ public class StartupMenu {
                     registerUser();
                     break;
                 case "2":
-                    studentSystem.start();
-                    return;
+                    login();
+                    break;
                 case "3":
                     System.out.println("Goodbye!");
                     return;
