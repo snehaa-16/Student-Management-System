@@ -77,11 +77,12 @@ public class StartupMenu {
 
     } catch (SQLException e) {
         System.out.println("Login failed because the database is unavailable.");
-    } finally {
+        } finally {
         wipe(password);
     }
 }
-    }
+
+    private boolean ensureAdminExists() {
 
     private boolean ensureAdminExists() {
         boolean setupNeeded;
