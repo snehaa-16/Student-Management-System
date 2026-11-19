@@ -13,6 +13,10 @@ public class InputHelper {
     }
 
     public String readLine(String prompt) {
+        if (console != null) {
+            return console.readLine("%s", prompt);
+        }
+
         System.out.print(prompt);
         System.out.flush();
 
