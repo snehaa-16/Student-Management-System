@@ -17,6 +17,25 @@ public class AuthService {
             return "Username must be 3-30 characters: letters, digits and underscore only.";
         }
         return null;
+        
+public User authenticate(String username, char[] password) throws SQLException {
+    if (username == null || password == null) {
+        return null;
+    }
+
+    User user = userDao.findByUsername(username);
+
+    if (user == null) {
+        return null;
+    }
+
+    if (PasswordUtil.verify(password, user.getPasswordHash())) {
+        return user;
+    }
+
+    return null;
+}
+
     }
 
     public String validatePassword(char[] password, String username) {
