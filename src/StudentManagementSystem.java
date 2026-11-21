@@ -17,6 +17,7 @@ public class StudentManagementSystem {
     private static final int MAX_TEXT_LENGTH = 100;
 
     private Scanner scanner;
+    private Role currentRole;
 
 public StudentManagementSystem() {
     this(new Scanner(System.in));
@@ -157,6 +158,10 @@ public StudentManagementSystem(Scanner scanner) {
     // ---------- CRUD operations ----------
 
     public void addStudent() {
+        if (currentRole != Role.ADMIN) {
+    System.out.println("Access denied. Administrator permission required.");
+    return;
+}
 
         int id = readInt("Enter Student ID: ", MIN_ID, Integer.MAX_VALUE);
 
@@ -300,6 +305,10 @@ public StudentManagementSystem(Scanner scanner) {
     }
 
     public void updateStudent() {
+        if (currentRole != Role.ADMIN) {
+    System.out.println("Access denied. Administrator permission required.");
+    return;
+}
 
         int id = readInt("Enter Student ID to update: ", MIN_ID, Integer.MAX_VALUE);
 
@@ -346,6 +355,10 @@ public StudentManagementSystem(Scanner scanner) {
     }
 
     public void deleteStudent() {
+        if (currentRole != Role.ADMIN) {
+    System.out.println("Access denied. Administrator permission required.");
+    return;
+}
 
         int id = readInt("Enter Student ID to delete: ", MIN_ID, Integer.MAX_VALUE);
 
@@ -390,61 +403,62 @@ public StudentManagementSystem(Scanner scanner) {
 
     // ---------- Menu ----------
 
-    public void start() {
+   
+public void start(Role role) {
+    if (role == null) {
+        System.out.println("Access denied.");
+        return;
+    }
+    currentRole = role;
 
-        try {
+    try {
+        while (true) {
+            System.out.println("\n=================================");
+            System.out.println("      STUDENT MANAGEMENT SYSTEM");
+            System.out.println("      Logged in as: " + role);
+            System.out.println("=================================");
 
-            while (true) {
-
-                System.out.println("\n=================================");
-                System.out.println("      STUDENT MANAGEMENT SYSTEM");
-                System.out.println("=================================");
+            if (role == Role.ADMIN) {
                 System.out.println("1. Add Student");
                 System.out.println("2. View All Students");
                 System.out.println("3. Search Student");
                 System.out.println("4. Update Student");
                 System.out.println("5. Delete Student");
-                System.out.println("6. Exit");
-                System.out.println("=================================");
+                System.out.println("6. Logout");
 
-                int choice = readInt("Enter your choice (1-6): ", 1, 6);
+                int choice = readInt("Enter choice (1-6): ", 1, 6);
 
                 switch (choice) {
-
-                    case 1:
-                        addStudent();
-                        break;
-
-                    case 2:
-                        viewStudents();
-                        break;
-
-                    case 3:
-                        searchStudent();
-                        break;
-
-                    case 4:
-                        updateStudent();
-                        break;
-
-                    case 5:
-                        deleteStudent();
-                        break;
-
+                    case 1: addStudent(); break;
+                    case 2: viewStudents(); break;
+                    case 3: searchStudent(); break;
+                    case 4: updateStudent(); break;
+                    case 5: deleteStudent(); break;
                     case 6:
-                        System.out.println(
-                                "Thank you for using Student Management System!"
-                        );
-                        scanner.close();
+                        System.out.println("Logged out.");
                         return;
+                }
+            } else {
+                System.out.println("1. View All Students");
+                System.out.println("2. Search Student");
+                System.out.println("3. Logout");
 
-                    default:
-                        System.out.println("Invalid choice!");
+                int choice = readInt("Enter choice (1-3): ", 1, 3);
+
+                switch (choice) {
+                    case 1: viewStudents(); break;
+                    case 2: searchStudent(); break;
+                    case 3:
+                        System.out.println("Logged out.");
+                        return;
                 }
             }
-
-        } catch (NoSuchElementException e) {
-            System.out.println("\nInput was closed. Exiting program.");
         }
+    } catch (NoSuchElementException e) {
+        System.out.println("\nInput was closed. Exiting program.");
     }
+}
+
+
+       
 }

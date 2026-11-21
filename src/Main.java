@@ -1,10 +1,21 @@
+import java.util.Scanner;
+
 public class Main {
 
     public static void main(String[] args) {
 
-        StudentManagementSystem system =
-                new StudentManagementSystem();
+        // One Scanner shared by the whole program.
+        Scanner scanner = new Scanner(System.in);
 
-        system.start();
+        InputHelper input = new InputHelper(scanner);
+
+        StudentManagementSystem system =
+                new StudentManagementSystem(scanner);
+
+        StartupMenu startupMenu = new StartupMenu(system, input);
+
+        startupMenu.run();
+
+        scanner.close();
     }
 }

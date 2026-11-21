@@ -1,0 +1,9 @@
+public enum RegistrationResult {
+    SUCCESS,
+    INVALID_USERNAME,
+    INVALID_PASSWORD,
+    USERNAME_TAKEN,
+    ALREADY_INITIALIZED,
+    BUSY,
+    SYSTEM_ERROR
+}

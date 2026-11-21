@@ -1,18 +1,26 @@
 # Student Management System
 
-A console-based Student Management System developed using **Java, JDBC, and MySQL**. The application allows users to manage student records through a menu-driven interface with database connectivity.
+A console-based Student Management System developed using **Java 17, JDBC, MySQL, and Maven**. The application provides database-backed student record management with user registration, login authentication, and role-based access control.
 
 ## Features
 
-- Add new student records
-- View all students
+### Student Management
+- Add new student records (ADMIN only)
+- View all student records
 - Search students by ID
-- Update student information
-- Delete students with confirmation
+- Update student information (ADMIN only)
+- Delete student records with confirmation (ADMIN only)
 - Prevent duplicate student IDs
 - Validate user inputs
-- Store student records in a MySQL database
 - Handle database errors and invalid inputs
+
+### User Authentication
+- User registration and login
+- Secure password hashing using BCrypt
+- Role-based access control (ADMIN and USER)
+- First-time ADMIN account initialization
+- Prevent duplicate usernames
+- Password input handled through a shared input utility
 
 ## Technologies Used
 
@@ -21,7 +29,9 @@ A console-based Student Management System developed using **Java, JDBC, and MySQ
 - JDBC
 - MySQL
 - Maven
+- BCrypt
 - Git and GitHub
+- GitHub Actions
 
 ## OOP Concepts Used
 
@@ -31,22 +41,53 @@ A console-based Student Management System developed using **Java, JDBC, and MySQ
 - Access Modifiers
 - Getters and Setters
 - Methods
+- Enums
 
-## Database Configuration
+## Role-Based Access
+
+The application supports two user roles:
+
+| Role | Permissions |
+|---|---|
+| ADMIN | Add, view, search, update and delete student records |
+| USER | View and search student records |
+
+Student management operations also contain role checks in the application code.
+
+## Database Structure
 
 The project uses a MySQL database named `student_management`.
 
-The database contains a table named `students` with the following fields:
+The database schema is provided in the root-level `database.sql` file.
 
-| Field | Data Type |
-|---|---|
-| id | INT (Primary Key) |
-| name | VARCHAR(100) |
-| age | INT |
-| course | VARCHAR(100) |
-| marks | DOUBLE |
+It contains three tables:
 
-The SQL database structure is provided in `database.sql`.
+**1. students**
+- id (Primary Key)
+- name
+- age
+- course
+- marks
+
+**2. users**
+- id (Primary Key)
+- username (Unique)
+- password_hash
+- role
+- account_status
+- failed_attempts
+- locked_until
+- created_at
+
+**3. audit_log**
+- id (Primary Key)
+- user_id
+- username
+- action
+- details
+- created_at
+
+Note: The audit log and account-lockout fields are defined in the database schema; their functionality is not yet integrated into the Java application.
 
 ## Prerequisites
 
@@ -63,13 +104,14 @@ Before running the project, install:
 
 ```bash
 git clone https://github.com/snehaa-16/Student-Management-System.git
+cd Student-Management-System
 ```
 
 ### 2. Create the database
 
-Open MySQL Workbench and execute the SQL statements from `database.sql`.
+Open MySQL Workbench and execute the SQL statements from the root-level `database.sql` file.
 
-This creates the `student_management` database and the `students` table.
+This creates the `student_management` database and its tables.
 
 ### 3. Configure database credentials
 
@@ -81,44 +123,8 @@ Set the following variables:
 - `DB_USER` = Your MySQL username
 - `DB_PASSWORD` = Your MySQL password
 
-Do not hardcode your database password in the Java source code.
+Do not hardcode database credentials in the Java source code.
 
 ### 4. Build the project
 
-Open a terminal in the project directory and run:
-
-```bash
-mvn clean compile
-```
-
-### 5. Run the application
-
-Open the project in a Java IDE, configure the database environment variables in the run configuration, and run `Main.java`.
-
-## Project Structure
-
-```text
-Student-Management-System
-│
-├── src
-│   ├── Main.java
-│   ├── Student.java
-│   ├── StudentManagementSystem.java
-│   └── DatabaseConnection.java
-│
-├── database.sql
-├── pom.xml
-├── README.md
-└── .gitignore
-```
-
-## Future Enhancements
-
-- Graphical User Interface (GUI)
-- Student login and authentication
-- Improved reporting and data visualization
-- Web-based application using Spring Boot
-
-## Author
-
-Developed as a B.Tech Computer Science and Engineering project.
+Open a
